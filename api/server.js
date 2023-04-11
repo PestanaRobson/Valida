@@ -19,7 +19,12 @@ for (let i = 1; i <= 9; i++) {
   dbParts.push(readAndUnzip(`db_part${i}.json.gz`));
 }
 
-const db = Object.assign({}, ...dbParts);
+const combinedValida = [];
+dbParts.forEach(part => {
+  combinedValida.push(...part.valida);
+});
+
+const db = { valida: combinedValida };
 
 // Criar o roteador usando os dados descompactados
 const router = jsonServer.router(db);
