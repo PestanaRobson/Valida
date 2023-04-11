@@ -1,4 +1,5 @@
 // Importações necessárias
+// Importações necessárias
 const fs = require('fs');
 const zlib = require('zlib');
 const jsonServer = require('json-server');
@@ -6,9 +7,19 @@ const jsonServer = require('json-server');
 // Criar o servidor JSON
 const server = jsonServer.create();
 
-// Descompactar e ler o arquivo db.json.gz
-const data = zlib.gunzipSync(fs.readFileSync('db.json.gz')).toString();
-const db = JSON.parse(data);
+// Função para ler e descompactar arquivos gz
+const readAndUnzip = (filename) => {
+  const data = zlib.gunzipSync(fs.readFileSync(filename)).toString();
+  return JSON.parse(data);
+};
+
+// Carregar e combinar todas as partes do db.json
+const dbParts = [];
+for (let i = 1; i <= 11; i++) {
+  dbParts.push(readAndUnzip(`db_part${i}.json.gz`));
+}
+
+const db = Object.assign({}, ...dbParts);
 
 // Criar o roteador usando os dados descompactados
 const router = jsonServer.router(db);

@@ -2,7 +2,7 @@
   "functions": {
     "api/server.js": {
       "memory": 2048,
-      "includeFiles": "db.json.gz"
+      "includeFiles": "db_part*.json.gz"
     }
   },
   "rewrites": [
