@@ -54,24 +54,31 @@ server.get('/calcular-digitos-cnpj/:cnpj', (req, res) => {
 
 
 // Função verificadora de CNPJ
+function validarCNPJ(cnpj) {
+  if (cnpj.length !== 14) {
+    return false;
+  }
+
+  const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
+  const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
+
+  return (
+    digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
+    digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1]
+  );
+}
+
+server.get('/validar-cnpj/:cnpj', (req, res) => {
+  const cnpj = req.params.cnpj;
+  const isValid = validarCNPJ(cnpj);
+  res.json({isValid});
+});
+
 async function validarCNPJAPI(cnpj) {
   const response = await fetch(`https://valida-teste.vercel.app/validar-cnpj/${cnpj}`);
   const data = await response.json();
   return data.isValid;
 }
-
-const cnpj = "12345678000195"; // Substitua pelo CNPJ completo
-validarCNPJAPI(cnpj)
-  .then((isValid) => {
-    if (isValid) {
-      console.log("O CNPJ digitado está correto.");
-    } else {
-      console.log("O CNPJ digitado está incorreto.");
-    }
-  })
-  .catch((error) => {
-    console.error("Erro ao validar CNPJ:", error);
-  });
 
 // inicio do servidor
 server.use(router);
