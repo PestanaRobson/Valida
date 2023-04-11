@@ -15,7 +15,7 @@ const readAndUnzip = (filename) => {
 
 // Carregar e combinar todas as partes do db.json
 const dbParts = [];
-for (let i = 1; i <= 11; i++) {
+for (let i = 1; i <= 9; i++) {
   dbParts.push(readAndUnzip(`db_part${i}.json.gz`));
 }
 
