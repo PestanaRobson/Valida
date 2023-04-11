@@ -1,4 +1,3 @@
-// See https://github.com/typicode/json-server#module
 // Importações necessárias
 const fs = require('fs');
 const zlib = require('zlib');
