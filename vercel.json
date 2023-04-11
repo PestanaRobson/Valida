@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/server.js": {
-      "memory": 4096,
+      "memory": 3000,
       "includeFiles": "db_part*.json.gz"
     }
   },
