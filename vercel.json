@@ -1,8 +1,8 @@
 {
   "functions": {
     "api/server.js": {
-      "memory": 2048,
-      "includeFiles": "db_part1.json.gz db_part2.json.gz db_part3.json.gz db_part4.json.gz db_part5.json.gz db_part6.json.gz db_part7.json.gz db_part8.json.gz db_part9.json.gz"
+      "memory": 4096,
+      "includeFiles": "db_part*.json.gz"
     }
   },
   "rewrites": [
