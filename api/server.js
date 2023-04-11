@@ -23,6 +23,64 @@ server.use(
     '/blog/:resource/:id/show': '/:resource/:id',
   })
 );
+
+// Função para calcular dígitos verificadores do CNPJ
+function calcularDigitosCNPJ(cnpj) {
+  const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+  const calcularDigito = (digitos, pesos) => {
+    let soma = 0;
+    for (let i = 0; i < digitos.length; i++) {
+      soma += digitos[i] * pesos[i];
+    }
+    const resto = soma % 11;
+    return resto < 2 ? 0 : 11 - resto;
+  };
+
+  const digitos = cnpj.split("").map((digito) => parseInt(digito));
+  const digito1 = calcularDigito(digitos.slice(0, 12), pesos1);
+  const digito2 = calcularDigito(digitos.slice(0, 12).concat([digito1]), pesos2);
+
+  return [digito1, digito2];
+}
+
+// Rota personalizada para calcular dígitos verificadores do CNPJ
+server.get('/calcular-digitos-cnpj/:cnpj', (req, res) => {
+  const cnpj = req.params.cnpj;
+  const digitosVerificadores = calcularDigitosCNPJ(cnpj);
+  res.json({digitosVerificadores});
+});
+
+
+// Função verificadora de CNPJ
+function validarCNPJ(cnpj) {
+  if (cnpj.length !== 14) {
+    return false;
+  }
+
+  const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
+  const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
+
+  return (
+    digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
+    digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1]
+  );
+}
+
+server.get('/validar-cnpj/:cnpj', (req, res) => {
+  const cnpj = req.params.cnpj;
+  const isValid = validarCNPJ(cnpj);
+  res.json({isValid});
+});
+
+async function validarCNPJAPI(cnpj) {
+  const response = await fetch(`https://valida-teste.vercel.app/validar-cnpj/${cnpj}`);
+  const data = await response.json();
+  return data.isValid;
+}
+
+// inicio do servidor
 server.use(router);
 
 // Iniciar o servidor
