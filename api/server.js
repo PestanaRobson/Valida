@@ -1,19 +1,35 @@
 // See https://github.com/typicode/json-server#module
-const jsonServer = require('json-server')
-const server = jsonServer.create()
-const router = jsonServer.router('db.json')
-const middlewares = jsonServer.defaults()
+// Importações necessárias
+const fs = require('fs');
+const zlib = require('zlib');
+const jsonServer = require('json-server');
 
-server.use(middlewares)
-// Add this before server.use(router)
-server.use(jsonServer.rewriter({
+// Criar o servidor JSON
+const server = jsonServer.create();
+
+// Descompactar e ler o arquivo db.json.gz
+const data = zlib.gunzipSync(fs.readFileSync('db.json.gz')).toString();
+const db = JSON.parse(data);
+
+// Criar o roteador usando os dados descompactados
+const router = jsonServer.router(db);
+
+// Configurar middlewares e rotas
+const middlewares = jsonServer.defaults();
+
+server.use(middlewares);
+server.use(
+  jsonServer.rewriter({
     '/api/*': '/$1',
-    '/blog/:resource/:id/show': '/:resource/:id'
-}))
-server.use(router)
-server.listen(3000, () => {
-    console.log('JSON Server is running')
-})
+    '/blog/:resource/:id/show': '/:resource/:id',
+  })
+);
+server.use(router);
 
-// Export the Server API
-module.exports = server
+// Iniciar o servidor
+server.listen(3000, () => {
+  console.log('JSON Server is running');
+});
+
+// Exportar a API do servidor
+module.exports = server;
