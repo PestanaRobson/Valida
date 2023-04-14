@@ -83,12 +83,12 @@ server.get('/validar-cnpj/:cnpj', (req, res) => {
 
     if (result) {
       const mensagem = "Modelo";
-      res.json({ isValid, result, mensagem });
+      res.json({ isValid, mensagem, result });
     } else {
-      res.json({ isValid, mensagem: 'CNPJ inválido' });
+      res.json({ isValid, mensagem: 'CNPJ fora do modelo' });
     }
   } else {
-    res.json({ isValid, mensagem: 'CNPJ inválido' });
+    res.json({ isValid, mensagem: 'CNPJ fora do modelo' });
   }
 });
 
