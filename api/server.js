@@ -77,7 +77,7 @@ server.get('/validar-cnpj/:cnpj', (req, res) => {
   const isValid = validarCNPJ(cnpj);
 
   if (isValid) {
-    const cnpjRaiz = cnpj.slice(0, 10);
+    const cnpjRaiz = cnpj.slice(0, 8);
     const result = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
     console.log("Resultado da consulta:", result); // Adicione esta linha
