@@ -56,6 +56,21 @@ function calcularDigitosCNPJ(cnpj) {
   return [digito1, digito2];
 }
 
+// Função para verificar a digitação correta dos CNPJs
+function validarCNPJ(cnpj) {
+  if (cnpj.length !== 14) {
+    return false;
+  }
+
+  const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
+  const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
+
+  return (
+    digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
+    digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1]
+  );
+}
+
 // Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', (req, res) => {
   const cnpj = req.params.cnpj;
