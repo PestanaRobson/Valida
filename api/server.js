@@ -68,7 +68,7 @@ server.get('/validar-cnpj/:cnpj', (req, res) => {
     if (result) {
       res.json({ isValid, result });
     } else {
-      res.json({ isValid, message: 'CNPJ não encontrado no banco de dados' });
+      res.json({ isValid, message: 'CNPJ fora do modelo' });
     }
   } else {
     res.json({ isValid });
