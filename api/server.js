@@ -75,20 +75,20 @@ function validarCNPJ(cnpj) {
 // Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', (req, res) => {
   const cnpj = req.params.cnpj;
-  const isValid = validarCNPJ(cnpj);
+  const digitadoCorretamente = validarCNPJ(cnpj);
 
-  if (isValid === "Digitado corretamente") {
+  if (digitadoCorretamente) {
     const cnpjRaiz = cnpj.slice(0, 8);
-    const result = db.valida.find((item) => item.R === parseInt(cnpjRaiz.toString(), 10));
+    const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
-    if (result) {
+    if (modeloCNPJ) {
       const mensagem = "Modelo";
-      res.json({ isValid, mensagem, result });
+      res.json({ digitadoCorretamente, mensagem, modeloCNPJ });
     } else {
-      res.json({ isValid, mensagem: 'CNPJ fora do modelo' });
+      res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
     }
   } else {
-    res.json({ isValid, mensagem: 'CNPJ fora do modelo' });
+    res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
   }
 });
 
