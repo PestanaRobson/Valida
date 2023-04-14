@@ -78,7 +78,7 @@ server.get('/validar-cnpj/:cnpj', (req, res) => {
 
   if (isValid) {
     const cnpjRaiz = cnpj.slice(0, 8);
-    const result = db.valida.find((item) => item.r === cnpjRaiz);
+    const result = db.valida.find((item) => item.R === cnpjRaiz);
 
     if (result) {
       res.json({ isValid, result });
