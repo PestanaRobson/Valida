@@ -1,5 +1,4 @@
 // Importações necessárias
-// Importações necessárias
 const fs = require('fs');
 const zlib = require('zlib');
 const jsonServer = require('json-server');
@@ -57,33 +56,23 @@ function calcularDigitosCNPJ(cnpj) {
   return [digito1, digito2];
 }
 
-// Rota personalizada para calcular dígitos verificadores do CNPJ
-server.get('/calcular-digitos-cnpj/:cnpj', (req, res) => {
-  const cnpj = req.params.cnpj;
-  const digitosVerificadores = calcularDigitosCNPJ(cnpj);
-  res.json({digitosVerificadores});
-});
-
-
-// Função verificadora de CNPJ
-function validarCNPJ(cnpj) {
-  if (cnpj.length !== 14) {
-    return false;
-  }
-
-  const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
-  const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
-
-  return (
-    digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
-    digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1]
-  );
-}
-
+// Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', (req, res) => {
   const cnpj = req.params.cnpj;
   const isValid = validarCNPJ(cnpj);
-  res.json({isValid});
+
+  if (isValid) {
+    const cnpjRaiz = cnpj.slice(0, 8);
+    const result = db.valida.find((item) => item.r === cnpjRaiz);
+
+    if (result) {
+      res.json({ isValid, result });
+    } else {
+      res.json({ isValid, message: 'CNPJ não encontrado no banco de dados' });
+    }
+  } else {
+    res.json({ isValid });
+  }
 });
 
 async function validarCNPJAPI(cnpj) {
