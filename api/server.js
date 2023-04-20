@@ -65,11 +65,11 @@ function validarCNPJ(cnpj) {
   const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
   const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
 
-  const digitadoCorretamente =
+  const isValid =
     digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
     digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1];
 
-  return digitadoCorretamente;
+  return isValid ? "Digitado corretamente" : "CNPJ inválido";
 }
 
 // Rota personalizada para validar CNPJ e retornar dados associados
