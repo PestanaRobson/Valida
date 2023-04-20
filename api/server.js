@@ -72,18 +72,17 @@ function validarCNPJ(cnpj) {
   return digitadoCorretamente;
 }
 
-// Função de busca situação na Receita
-const fetch = require('node-fetch');
+const axios = require('axios');
 
 async function consultarReceitaWS(cnpj) {
   const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
-  const response = await fetch(url);
+  const response = await axios.get(url);
 
-  if (!response.ok) {
+  if (response.status !== 200) {
     throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = response.data;
 
   return data.situacao;
 }
