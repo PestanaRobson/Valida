@@ -2,6 +2,7 @@
 const fs = require('fs');
 const zlib = require('zlib');
 const jsonServer = require('json-server');
+const axios = require('axios');
 
 // Criar o servidor JSON
 const server = jsonServer.create();
@@ -61,67 +62,57 @@ function validarCNPJ(cnpj) {
   if (cnpj.length !== 14) {
     return "CNPJ inválido";
   }
+const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
+const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
 
-  const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
-  const digitosVerificadoresCalculados = calcularDigitosCNPJ(cnpj.slice(0, 12));
+const digitadoCorretamente =
+digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
+digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1];
 
-  const digitadoCorretamente =
-    digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
-    digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1];
-
-  return digitadoCorretamente;
+return digitadoCorretamente;
 }
 
-const axios = require('axios');
-
 async function consultarReceitaWS(cnpj) {
-  const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
-  const response = await axios.get(url);
+const url = https://www.receitaws.com.br/v1/cnpj/${cnpj};
+const response = await axios.get(url);
 
-  if (response.status !== 200) {
-    throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
-  }
+if (response.status !== 200) {
+throw new Error(Falha ao consultar a Receita WS: ${response.status});
+}
 
-  const data = response.data;
+const data = response.data;
 
-  return data.situacao;
+return data.situacao;
 }
 
 // Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', async (req, res) => {
-  const cnpj = req.params.cnpj;
-  const digitadoCorretamente = validarCNPJ(cnpj);
+const cnpj = req.params.cnpj;
+const digitadoCorretamente = validarCNPJ(cnpj);
 
-  if (digitadoCorretamente) {
-    const cnpjRaiz = cnpj.slice(0, 8);
-    const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
+if (digitadoCorretamente) {
+const cnpjRaiz = cnpj.slice(0, 8);
+const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
-    if (modeloCNPJ) {
-      const situacao = await consultarReceitaWS(cnpj);
-      const mensagem = "Modelo";
-      res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
-    } else {
-      res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
-    }
-  } else {
-    res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
-  }
-});
-
-async function validarCNPJAPI(cnpj) {
-  const response = await fetch(`https://valida-teste.vercel.app/validar-cnpj/${cnpj}`);
-  const data = await response.json();
-
-  const mensagem = data.isValid ? "Digitado corretamente" : "CNPJ inválido";
-  return { isValid: data.isValid, mensagem };
+if (modeloCNPJ) {
+  const situacao = await consultarReceitaWS(cnpj);
+  const mensagem = "Modelo";
+  res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
+} else {
+  res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
 }
+
+} else {
+res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
+}
+});
 
 // inicio do servidor
 server.use(router);
 
 // Iniciar o servidor
 server.listen(3000, () => {
-  console.log('JSON Server is running');
+console.log('JSON Server is running');
 });
 
 // Exportar a API do servidor
