@@ -1,0 +1,11 @@
+# Ignorar arquivos que não são necessários no deploy
+/node_modules
+/.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.gz
+.vercel
+.vercelignore
