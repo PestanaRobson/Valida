@@ -101,7 +101,8 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
       const mensagem = "Modelo";
       res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
     } else {
-      res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
+      const situacao = await consultarReceitaWS(cnpj);
+      res.json({ digitadoCorretamente, situacao, mensagem: 'CNPJ fora do modelo' });
     }
   } else {
     res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
