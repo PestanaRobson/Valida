@@ -4,8 +4,7 @@
   "description": "Deploy JSON Server to Vercel",
   "main": "api/server.js",
   "scripts": {
-    "start": "server.js",
-    "install": "pnpm install --no-frozen-lockfile"
+    "start": "server.js"
   },
   "dependencies": {
     "json-server": "^0.17.0",
