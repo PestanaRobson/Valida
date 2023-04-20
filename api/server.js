@@ -89,7 +89,7 @@ async function consultarReceitaWS(cnpj) {
 }
 
 // Rota personalizada para validar CNPJ e retornar dados associados
-server.get('/validar-cnpj/:cnpj', (req, res) => {
+server.get('/validar-cnpj/:cnpj', async (req, res) => {
   const cnpj = req.params.cnpj;
   const digitadoCorretamente = validarCNPJ(cnpj);
 
