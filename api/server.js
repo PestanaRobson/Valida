@@ -72,6 +72,22 @@ function validarCNPJ(cnpj) {
   return digitadoCorretamente;
 }
 
+// Função de busca situação na Receita
+const fetch = require('node-fetch');
+
+async function consultarReceitaWS(cnpj) {
+  const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  return data.situacao;
+}
+
 // Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', (req, res) => {
   const cnpj = req.params.cnpj;
@@ -82,8 +98,9 @@ server.get('/validar-cnpj/:cnpj', (req, res) => {
     const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
     if (modeloCNPJ) {
+      const situacao = await consultarReceitaWS(cnpj);
       const mensagem = "Modelo";
-      res.json({ digitadoCorretamente, mensagem, modeloCNPJ });
+      res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
     } else {
       res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
     }
