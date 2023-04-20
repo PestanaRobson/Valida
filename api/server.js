@@ -2,6 +2,7 @@
 const fs = require('fs');
 const zlib = require('zlib');
 const jsonServer = require('json-server');
+const axios = require('axios');
 
 // Criar o servidor JSON
 const server = jsonServer.create();
@@ -72,8 +73,22 @@ function validarCNPJ(cnpj) {
   return isValid ? "Digitado corretamente" : "CNPJ inválido";
 }
 
+// Função que busca dados do Receita WS
+async function consultarReceitaWS(cnpj) {
+  const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
+  const response = await axios.get(url);
+
+  if (response.status !== 200) {
+    throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
+  }
+
+  const data = response.data;
+
+  return data.situacao;
+}
+
 // Rota personalizada para validar CNPJ e retornar dados associados
-server.get('/validar-cnpj/:cnpj', (req, res) => {
+server.get('/validar-cnpj/:cnpj', async (req, res) => {
   const cnpj = req.params.cnpj;
   const digitadoCorretamente = validarCNPJ(cnpj);
 
@@ -82,8 +97,9 @@ server.get('/validar-cnpj/:cnpj', (req, res) => {
     const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
     if (modeloCNPJ) {
+      const situacao = await consultarReceitaWS(cnpj);
       const mensagem = "Modelo";
-      res.json({ digitadoCorretamente, mensagem, modeloCNPJ });
+      res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
     } else {
       res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
     }
