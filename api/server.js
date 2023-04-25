@@ -75,16 +75,21 @@ function validarCNPJ(cnpj) {
 
 // Função que busca dados do Receita WS
 async function consultarReceitaWS(cnpj) {
-  const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
-  const response = await axios.get(url);
+  try {
+    const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
+    const response = await axios.get(url);
 
-  if (response.status !== 200) {
-    throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
+    }
+
+    const data = response.data;
+
+    return data.situacao;
+  } catch (error) {
+    console.error('Erro ao realizar consulta:', error);
+    return '';
   }
-
-  const data = response.data;
-
-  return data.situacao;
 }
 
 // Rota personalizada para validar CNPJ e retornar dados associados
