@@ -73,6 +73,7 @@ function validarCNPJ(cnpj) {
   return isValid ? "Digitado corretamente" : "CNPJ inválido";
 }
 
+//conexão ao BD
 const sql = require('mssql');
 
 const dbConfig = {
@@ -82,29 +83,42 @@ const dbConfig = {
   database: 'VALIDA',
   options: {
     encrypt: false,
-    trustServerCertificate: true
-  }
+    trustServerCertificate: true,
+  },
+  pool: {
+    min: 0, // Número mínimo de conexões no pool
+    max: 999, // Número máximo de conexões no pool
+    idleTimeoutMillis: 3600000, // Tempo limite em milissegundos antes de uma conexão ociosa ser fechada
+  },
 };
 
+// Cria e conecta o pool de conexões
+const poolPromise = new sql.ConnectionPool(dbConfig)
+  .connect()
+  .then(pool => {
+    console.log('Conexão com o banco de dados estabelecida');
+    return pool;
+  })
+  .catch(error => {
+    console.log('Erro ao conectar com o banco de dados:', error);
+  });
 
-// Consulta o BD Valida
+// Consulta o BD Valida utilizando o pool de conexões
 async function consultarReceitaWS(cnpj) {
   try {
-    await sql.connect(dbConfig);
-    const result = await sql.query`SELECT top 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
-
+    const pool = await poolPromise;
+    const result = await pool.request().input('CNPJ_COMPL', sql.VarChar, cnpj).query('SELECT top 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = @CNPJ_COMPL');
+    
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
-      return { situacao: data.situacao };
+      return data.situacao;
     } else {
       console.error('CNPJ não encontrado no banco de dados');
-      return { error: 'CNPJ não encontrado no banco de dados' };
+      return '';
     }
   } catch (error) {
     console.error('Erro ao realizar consulta:', error);
-    return { error: 'Erro ao realizar consulta' };
-  } finally {
-    sql.close(); // Sempre feche a conexão ao finalizar a consulta
+    return '';
   }
 }
 
