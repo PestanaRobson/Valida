@@ -147,7 +147,7 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
       res.json({ digitadoCorretamente, situacao, mensagem: 'CNPJ fora do modelo' });
     }
   } else {
-    res.json({ digitadoCorretamente, mensagem: 'CNPJ fora do modelo' });
+    res.json({ digitadoCorretamente, situacao, mensagem: 'CNPJ fora do modelo' });
   }
 });
 
