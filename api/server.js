@@ -108,7 +108,7 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
 async function consultarReceitaWS(cnpj) {
   try {
     const pool = await poolPromise;
-    const result = await pool.request().input('CNPJ_COMPL', sql.VarChar, cnpj).query('SELECT top 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = @CNPJ_COMPL');
+    const result = await pool.request().input('CNPJ_COMPL', sql.VarChar, cnpj).query('SELECT situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = @CNPJ_COMPL');
     
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
