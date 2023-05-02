@@ -136,12 +136,7 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
     const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
     const receitaWSResult = await consultarReceitaWS(cnpj);
-    if (receitaWSResult.error) {
-      res.status(404).json({ error: receitaWSResult.error });
-      return;
-    }
-
-    const situacao = receitaWSResult.situacao;
+    const situacao = receitaWSResult;
     const digitadoCorretamente = "Digitado corretamente";
 
     if (modeloCNPJ) {
