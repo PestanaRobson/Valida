@@ -60,7 +60,7 @@ function calcularDigitosCNPJ(cnpj) {
 // Função para verificar a digitação correta dos CNPJs
 function validarCNPJ(cnpj) {
   if (cnpj.length !== 14) {
-    return "CNPJ inválido";
+    return false;
   }
 
   const digitosVerificadoresRecebidos = [parseInt(cnpj[12]), parseInt(cnpj[13])];
@@ -70,8 +70,9 @@ function validarCNPJ(cnpj) {
     digitosVerificadoresRecebidos[0] === digitosVerificadoresCalculados[0] &&
     digitosVerificadoresRecebidos[1] === digitosVerificadoresCalculados[1];
 
-  return isValid ? "Digitado corretamente" : "CNPJ inválido";
+  return isValid;
 }
+
 
 //conexão ao BD
 const sql = require('mssql');
@@ -126,9 +127,9 @@ async function consultarReceitaWS(cnpj) {
 // Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', async (req, res) => {
   const cnpj = req.params.cnpj;
-  const digitadoCorretamente = validarCNPJ(cnpj);
+  const isValid = validarCNPJ(cnpj);
 
-  if (digitadoCorretamente) {
+  if (isValid) {
     const cnpjRaiz = cnpj.slice(0, 8);
     const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
@@ -138,26 +139,20 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
       return;
     }
 
+    const situacao = receitaWSResult.situacao;
+    const digitadoCorretamente = "Digitado corretamente";
+
     if (modeloCNPJ) {
-      const situacao = receitaWSResult.situacao;
       const mensagem = "Modelo";
       res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
     } else {
-      const situacao = receitaWSResult.situacao;
       res.json({ digitadoCorretamente, situacao, mensagem: 'CNPJ fora do modelo' });
     }
   } else {
-    res.json({ digitadoCorretamente, situacao, mensagem: 'CNPJ fora do modelo' });
+    res.json({ digitadoCorretamente: "CNPJ inválido", mensagem: 'CNPJ fora do modelo' });
   }
 });
 
-async function validarCNPJAPI(cnpj) {
-  const response = await fetch(`https://valida-teste.vercel.app/validar-cnpj/${cnpj}`);
-  const data = await response.json();
-
-  const mensagem = data.isValid ? "Digitado corretamente" : "CNPJ inválido";
-  return { isValid: data.isValid, mensagem };
-}
 
 // inicio do servidor
 server.use(router);
