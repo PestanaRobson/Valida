@@ -106,7 +106,7 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
 
 // Consulta o BD Valida utilizando o pool de conexões
 async function consultarReceitaWS(pool, cnpj) {
-  const maxTentativas = 3; // Número máximo de tentativas de reconexão
+  const maxTentativas = 5; // Número máximo de tentativas de reconexão
   let tentativas = 0;
 
   while (tentativas < maxTentativas) {
@@ -129,7 +129,7 @@ async function consultarReceitaWS(pool, cnpj) {
       tentativas++;
       if (tentativas < maxTentativas) {
         console.log(`Tentativa ${tentativas} de ${maxTentativas} de reconexão...`);
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Aguardar 2 segundos antes de tentar reconectar
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Aguardar 1 segundo antes de tentar reconectar;
       } else {
         console.log('Número máximo de tentativas de reconexão atingido. Retornando erro.');
         return '';
@@ -137,8 +137,6 @@ async function consultarReceitaWS(pool, cnpj) {
     }
   }
 }
-
-
 
 
 // Rota personalizada para validar CNPJ e retornar dados associados
