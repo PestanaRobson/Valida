@@ -109,7 +109,7 @@ async function consultarReceitaWS(cnpj) {
   try {
     const pool = await poolPromise; // Mova esta linha para dentro da função e use poolPromise
     const request = pool.request(); // Crie uma nova solicitação usando o pool
-    const result = await request.query`SELECT situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
+    const result = await request.query`SELECT TOP 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
 
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
