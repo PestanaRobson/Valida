@@ -80,7 +80,12 @@ const dbConfig = {
   password: 'V@lida',
   server: '18.212.217.126',
   database: 'VALIDA',
+  options: {
+    encrypt: false,
+    trustServerCertificate: true
+  }
 };
+
 
 // Consulta o BD Valida
 async function consultarReceitaWS(cnpj) {
