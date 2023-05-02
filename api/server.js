@@ -105,13 +105,12 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
   });
 
 // Consulta o BD Valida utilizando o pool de conexões
-async function consultarReceitaWS(cnpj) {
+async function consultarReceitaWS(pool, cnpj) {
   const maxTentativas = 3; // Número máximo de tentativas de reconexão
   let tentativas = 0;
 
   while (tentativas < maxTentativas) {
     try {
-      await pool.connect(); // Certifique-se de que o pool foi conectado
       const request = pool.request(); // Crie uma nova solicitação usando o pool
       const result = await request.query`SELECT TOP 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
 
@@ -138,6 +137,7 @@ async function consultarReceitaWS(cnpj) {
     }
   }
 }
+
 
 
 
