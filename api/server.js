@@ -73,24 +73,36 @@ function validarCNPJ(cnpj) {
   return isValid ? "Digitado corretamente" : "CNPJ inválido";
 }
 
-// Função que busca dados do Receita WS
+const sql = require('mssql');
+
+const dbConfig = {
+  user: 'APIs',
+  password: 'V@lida',
+  server: '18.212.217.126',
+  database: 'VALIDA',
+};
+
+// Consulta o BD Valida
 async function consultarReceitaWS(cnpj) {
   try {
-    const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}`;
-    const response = await axios.get(url);
+    await sql.connect(dbConfig);
+    const result = await sql.query`SELECT * FROM dbo.VALIDA WHERE CNPJ = ${cnpj}`;
 
-    if (response.status !== 200) {
-      throw new Error(`Falha ao consultar a Receita WS: ${response.status}`);
+    if (result.recordset.length > 0) {
+      const data = result.recordset[0];
+      return data.situacao;
+    } else {
+      console.error('CNPJ não encontrado no banco de dados');
+      return '';
     }
-
-    const data = response.data;
-
-    return data.situacao;
   } catch (error) {
     console.error('Erro ao realizar consulta:', error);
     return '';
+  } finally {
+    sql.close(); // Sempre feche a conexão ao finalizar a consulta
   }
 }
+
 
 // Rota personalizada para validar CNPJ e retornar dados associados
 server.get('/validar-cnpj/:cnpj', async (req, res) => {
