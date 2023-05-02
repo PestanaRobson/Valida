@@ -86,7 +86,7 @@ const dbConfig = {
 async function consultarReceitaWS(cnpj) {
   try {
     await sql.connect(dbConfig);
-    const result = await sql.query`SELECT * FROM dbo.VALIDA WHERE CNPJ = ${cnpj}`;
+    const result = await sql.query`SELECT * FROM dbo.VALIDA WHERE CNPJ_COMPL = '${cnpj}'`;
 
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
