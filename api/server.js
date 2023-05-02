@@ -107,11 +107,13 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
 // Consulta o BD Valida utilizando o pool de conexões
 async function consultarReceitaWS(cnpj) {
   try {
-    const pool = await poolPromise;
-    const result = await pool.request().input('CNPJ_COMPL', sql.VarChar, cnpj).query('SELECT situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = @CNPJ_COMPL');
-    
+    await poolConnect; // Certifique-se de que o pool foi conectado
+    const request = pool.request(); // Crie uma nova solicitação usando o pool
+    const result = await request.query`SELECT top 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
+
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
+      console.log('Data from DB:', data);
       return data.situacao;
     } else {
       console.error('CNPJ não encontrado no banco de dados');
@@ -122,6 +124,7 @@ async function consultarReceitaWS(cnpj) {
     return '';
   }
 }
+
 
 
 // Rota personalizada para validar CNPJ e retornar dados associados
