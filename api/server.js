@@ -150,7 +150,9 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
     const cnpjRaiz = cnpj.slice(0, 8);
     const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
-    const receitaWSResult = await consultarReceitaWS(cnpj);
+    // Use o pool de conexões do poolPromise
+    const pool = await poolPromise;
+    const receitaWSResult = await consultarReceitaWS(pool, cnpj);
     const situacao = receitaWSResult;
     const digitadoCorretamente = "Digitado corretamente";
 
@@ -164,6 +166,7 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
     res.json({ digitadoCorretamente: "CNPJ inválido", mensagem: 'CNPJ fora do modelo' });
   }
 });
+
 
 
 // inicio do servidor
