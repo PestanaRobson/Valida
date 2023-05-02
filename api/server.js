@@ -107,8 +107,7 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
 // Consulta o BD Valida utilizando o pool de conexões
 async function consultarReceitaWS(cnpj) {
   try {
-    const poolConnect = pool.connect(); // Mova esta linha para dentro da função
-    await poolConnect; // Certifique-se de que o pool foi conectado
+    const pool = await poolPromise; // Mova esta linha para dentro da função e use poolPromise
     const request = pool.request(); // Crie uma nova solicitação usando o pool
     const result = await request.query`SELECT situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
 
@@ -125,8 +124,6 @@ async function consultarReceitaWS(cnpj) {
     return '';
   }
 }
-
-
 
 
 // Rota personalizada para validar CNPJ e retornar dados associados
