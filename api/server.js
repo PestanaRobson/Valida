@@ -91,18 +91,18 @@ const dbConfig = {
 async function consultarReceitaWS(cnpj) {
   try {
     await sql.connect(dbConfig);
-    const result = await sql.query`SELECT TOP 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
+    const result = await sql.query`SELECT situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
 
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
-      return data.situacao;
+      return { situacao: data.situacao };
     } else {
       console.error('CNPJ não encontrado no banco de dados');
-      return '';
+      return { error: 'CNPJ não encontrado no banco de dados' };
     }
   } catch (error) {
     console.error('Erro ao realizar consulta:', error);
-    return '';
+    return { error: 'Erro ao realizar consulta' };
   } finally {
     sql.close(); // Sempre feche a conexão ao finalizar a consulta
   }
@@ -118,12 +118,18 @@ server.get('/validar-cnpj/:cnpj', async (req, res) => {
     const cnpjRaiz = cnpj.slice(0, 8);
     const modeloCNPJ = db.valida.find((item) => item.R === parseInt(cnpjRaiz, 10));
 
+    const receitaWSResult = await consultarReceitaWS(cnpj);
+    if (receitaWSResult.error) {
+      res.status(404).json({ error: receitaWSResult.error });
+      return;
+    }
+
     if (modeloCNPJ) {
-      const situacao = await consultarReceitaWS(cnpj);
+      const situacao = receitaWSResult.situacao;
       const mensagem = "Modelo";
       res.json({ digitadoCorretamente, situacao, mensagem, modeloCNPJ });
     } else {
-      const situacao = await consultarReceitaWS(cnpj);
+      const situacao = receitaWSResult.situacao;
       res.json({ digitadoCorretamente, situacao, mensagem: 'CNPJ fora do modelo' });
     }
   } else {
