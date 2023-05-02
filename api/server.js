@@ -107,9 +107,10 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
 // Consulta o BD Valida utilizando o pool de conexões
 async function consultarReceitaWS(cnpj) {
   try {
+    const poolConnect = pool.connect(); // Mova esta linha para dentro da função
     await poolConnect; // Certifique-se de que o pool foi conectado
     const request = pool.request(); // Crie uma nova solicitação usando o pool
-    const result = await request.query`SELECT top 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
+    const result = await request.query`SELECT situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
 
     if (result.recordset.length > 0) {
       const data = result.recordset[0];
@@ -124,6 +125,7 @@ async function consultarReceitaWS(cnpj) {
     return '';
   }
 }
+
 
 
 
