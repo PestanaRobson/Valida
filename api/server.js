@@ -106,24 +106,39 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
 
 // Consulta o BD Valida utilizando o pool de conexões
 async function consultarReceitaWS(cnpj) {
-  try {
-    const pool = await poolPromise; // Mova esta linha para dentro da função e use poolPromise
-    const request = pool.request(); // Crie uma nova solicitação usando o pool
-    const result = await request.query`SELECT TOP 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
+  const maxTentativas = 3; // Número máximo de tentativas de reconexão
+  let tentativas = 0;
 
-    if (result.recordset.length > 0) {
-      const data = result.recordset[0];
-      console.log('Data from DB:', data);
-      return data.situacao;
-    } else {
-      console.error('CNPJ não encontrado no banco de dados');
-      return '';
+  while (tentativas < maxTentativas) {
+    try {
+      await pool.connect(); // Certifique-se de que o pool foi conectado
+      const request = pool.request(); // Crie uma nova solicitação usando o pool
+      const result = await request.query`SELECT TOP 1 situacao FROM [VALIDA].[dbo].[VALIDA] WHERE CNPJ_COMPL = ${cnpj}`;
+
+      if (result.recordset.length > 0) {
+        const data = result.recordset[0];
+        console.log('Data from DB:', data);
+        return data.situacao;
+      } else {
+        console.error('CNPJ não encontrado no banco de dados');
+        return '';
+      }
+    } catch (error) {
+      console.error('Erro ao realizar consulta:', error);
+
+      // Incrementar tentativas e verificar se ainda há tentativas disponíveis
+      tentativas++;
+      if (tentativas < maxTentativas) {
+        console.log(`Tentativa ${tentativas} de ${maxTentativas} de reconexão...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Aguardar 2 segundos antes de tentar reconectar
+      } else {
+        console.log('Número máximo de tentativas de reconexão atingido. Retornando erro.');
+        return '';
+      }
     }
-  } catch (error) {
-    console.error('Erro ao realizar consulta:', error);
-    return '';
   }
 }
+
 
 
 // Rota personalizada para validar CNPJ e retornar dados associados
