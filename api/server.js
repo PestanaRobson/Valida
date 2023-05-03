@@ -80,7 +80,7 @@ const sql = require('mssql');
 const dbConfig = {
   user: 'APIs',
   password: 'V@lida',
-  server: '18.212.217.126',
+  server: '34.232.154.49',
   database: 'VALIDA',
   options: {
     encrypt: false,
